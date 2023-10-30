@@ -6,25 +6,34 @@ from plyer import notification  # plyer 라이브러리를 임포트합니다
 # 웹캠을 엽니다
 cap = cv2.VideoCapture(0)
 
-# 프레임을 저장할 디렉토리를 지정합니다
-output_directory = "captured_frames"
-os.makedirs(output_directory, exist_ok=True)
-
 frame_count = 0
 capture_interval = 1  # 1초에 한 번씩 캡처합니다
+width_grid, height_grid = list(map(int, input("가로 그리드 갯수, 세로 그리드 갯수를 입력하세요.").split()))
+
+start_time = time.time()
+
+for i in range(3, 0, -1):
+    print("{} 초 뒤 촬영을 시작합니다.".format(i))
+    time.sleep(1)
 
 while True:
+    current_time = time.time()
     # 웹캠에서 프레임을 읽어옵니다
     ret, frame = cap.read()
-    # 10x10 격자를 그립니다
-    grid_size = 10
+    #빈 화면을 복사합니다.
+    frame_copy = frame.copy()
+    # 10x10 격자를 그립니다]
     height, width, _ = frame.shape
-    cell_size_x = width // grid_size
-    cell_size_y = height // grid_size
+    cell_size_x = width // width_grid
+    cell_size_y = height // height_grid
+
+    # 프레임을 저장할 디렉토리를 지정합니다
+    output_directory = "images/" + str(frame_count % (width_grid * height_grid) + 1)
+    os.makedirs(output_directory, exist_ok=True)
 
     # 격자에 번호를 추가합니다
-    for i in range(grid_size):
-        for j in range(grid_size):
+    for i in range(height_grid):
+        for j in range(width_grid):
             # 격자의 중심 좌표 계산
             center_x = j * cell_size_x + cell_size_x // 2
             center_y = i * cell_size_y + cell_size_y // 2
@@ -33,7 +42,7 @@ while True:
             font_scale = 0.5
             font_thickness = 1
             font = cv2.FONT_HERSHEY_SIMPLEX
-            text = f'{i * grid_size + j}'
+            text = f'{i * height_grid + j + 1}'
             text_size = cv2.getTextSize(text, font, font_scale, font_thickness)[0]
             text_x = center_x - text_size[0] // 2
             text_y = center_y + text_size[1] // 2
@@ -43,21 +52,24 @@ while True:
 
 
     # 수평선 그리기
-    for i in range(1, grid_size):
+    for i in range(1, height_grid):
         cv2.line(frame, (0, i * cell_size_y), (width, i * cell_size_y), (0, 255, 0), 1)
 
     # 수직선 그리기
-    for i in range(1, grid_size):
+    for i in range(1, width_grid):
         cv2.line(frame, (i * cell_size_x, 0), (i * cell_size_x, height), (0, 255, 0), 1)
 
+    cv2.namedWindow('Grid Webcam', cv2.WINDOW_NORMAL)
+    cv2.setWindowProperty('Grid Webcam', cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
     # 화면에 프레임을 표시합니다
     cv2.imshow('Grid Webcam', frame)
 
+
     # 프레임을 캡처해서 저장합니다 (1초에 한 번)
-    if frame_count % capture_interval == 0:
+    if current_time - start_time >= 1:
         timestamp = time.strftime("%Y%m%d_%H%M%S")
         output_filename = os.path.join(output_directory, f"frame_{timestamp}.png")
-        cv2.imwrite(output_filename, frame)
+        cv2.imwrite(output_filename, frame_copy)
         print(f"Captured frame saved: {output_filename}")
 
         # 캡처될 때마다 알림을 띄웁니다
@@ -69,13 +81,14 @@ while True:
             app_name='Grid Webcam App',  # 알림에서 표시될 앱 이름
             timeout=1  # 알림이 표시될 시간 (초)
         )
-
-    frame_count += 1
-
-    time.sleep(1)
+        start_time = current_time
+        frame_count += 1
 
     # 'q' 키를 누르면 종료합니다
     if cv2.waitKey(1) & 0xFF == ord('q'):
+        break
+
+    if frame_count == (width_grid * height_grid):
         break
 
 # 웹캠을 해제하고 창을 닫습니다
