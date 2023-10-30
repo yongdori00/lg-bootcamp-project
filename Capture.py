@@ -58,7 +58,7 @@ while True:
             font_scale = 0.5
             font_thickness = 1
             font = cv2.FONT_HERSHEY_SIMPLEX
-            text = f'{i * height_grid + j + 1}'
+            text = f'{i * width_grid + j + 1}'
             text_size = cv2.getTextSize(text, font, font_scale, font_thickness)[0]
             text_x = center_x - text_size[0] // 2
             text_y = center_y + text_size[1] // 2
