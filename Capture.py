@@ -1,10 +1,11 @@
 import cv2
 import os
 import time
+import numpy as np
 from plyer import notification  # plyer 라이브러리를 임포트합니다
 
 # 웹캠을 엽니다
-cap = cv2.VideoCapture(0)
+cap = cv2.VideoCapture(1)
 
 frame_count = 0
 capture_interval = 1  # 1초에 한 번씩 캡처합니다
@@ -12,9 +13,24 @@ width_grid, height_grid = list(map(int, input("가로 그리드 갯수, 세로 �
 
 start_time = time.time()
 
+cv2.namedWindow('Grid Webcam', cv2.WINDOW_NORMAL)
+cv2.setWindowProperty('Grid Webcam', cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
+cv2.setWindowProperty('Grid Webcam', cv2.WND_PROP_TOPMOST, 1)
+
+font = cv2.FONT_HERSHEY_SIMPLEX
+font_scale = 0.5
+font_color = (0, 255, 255)  # 텍스트 색상 (파란색)
+thickness = 2  # 텍스트 두께
+
 for i in range(3, 0, -1):
-    print("{} 초 뒤 촬영을 시작합니다.".format(i))
-    time.sleep(1)
+    image = np.zeros((480, 640, 3), dtype=np.uint8)
+    text = "starts after {} seconds".format(i)
+    text_size = cv2.getTextSize(text, font, font_scale, thickness)[0]
+    text_x = (image.shape[1] - text_size[0]) // 2
+    text_y = (image.shape[0] + text_size[1]) // 2
+    cv2.putText(image, text, (text_x, text_y), font, font_scale, font_color, thickness)
+    cv2.imshow('Grid Webcam', image)
+    cv2.waitKey(1000)  # 1초 대기
 
 while True:
     current_time = time.time()
@@ -48,7 +64,10 @@ while True:
             text_y = center_y + text_size[1] // 2
 
             # 격자 중심에 번호를 추가합니다
-            cv2.putText(frame, text, (text_x, text_y), font, font_scale, (0, 255, 0), font_thickness, lineType=cv2.LINE_AA)
+            if frame_count == width_grid * i + (j + 1):
+                cv2.putText(frame, text, (text_x, text_y), font, font_scale, (0, 0, 255), font_thickness, lineType=cv2.LINE_AA)
+            else:
+                cv2.putText(frame, text, (text_x, text_y), font, font_scale, (0, 255, 0), font_thickness, lineType=cv2.LINE_AA)
 
 
     # 수평선 그리기
@@ -59,9 +78,8 @@ while True:
     for i in range(1, width_grid):
         cv2.line(frame, (i * cell_size_x, 0), (i * cell_size_x, height), (0, 255, 0), 1)
 
-    cv2.namedWindow('Grid Webcam', cv2.WINDOW_NORMAL)
-    cv2.setWindowProperty('Grid Webcam', cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
-    # 화면에 프레임을 표시합니다
+    # 화면에 프레임을 표시합니다.
+
     cv2.imshow('Grid Webcam', frame)
 
 
