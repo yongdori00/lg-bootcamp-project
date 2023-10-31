@@ -4,6 +4,7 @@ import time
 import numpy as np
 from plyer import notification
 
+
 class GridWebcamCapture:
     def __init__(self, camera_num:int=0):
         self.cap = cv2.VideoCapture(camera_num)
@@ -83,6 +84,14 @@ class GridWebcamCapture:
         radius = width // 4
         cv2.circle(frame, (center_x, center_y), radius, (255, 0, 0), 2)
 
+    def _add_ellipse(self, frame, height, width):
+        center_x = width // 2
+        center_y = height // 2
+        major_axis = width // 6       # Adjust the major axis length
+        minor_axis = height // 3  # Adjust the minor axis length
+        angle = 0  # Adjust the angle if needed
+        cv2.ellipse(frame, (center_x, center_y), (major_axis, minor_axis), angle, 0, 360, (255, 0, 0), 2)
+
     def capture_frames(self):
         while True:
             self._set_dir()
@@ -95,7 +104,8 @@ class GridWebcamCapture:
             height, width, _ = frame.shape
             self._add_grid(frame, height, width)
             self._add_number_in_grid(frame, height, width)
-            self._add_circle(frame, height, width)
+            # self._add_circle(frame, height, width)
+            self._add_ellipse(frame, height, width)
         
             # 화면에 프레임을 표시합니다.
             cv2.imshow('Grid Webcam', frame)
