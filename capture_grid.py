@@ -77,17 +77,25 @@ class GridWebcamCapture:
         for i in range(1, self.width_grid):
             cv2.line(frame, (i * cell_size_x, 0), (i * cell_size_x, height), (0, 255, 0), 1)
 
+    def _add_circle(self, frame, height, width):
+        center_x = width // 2
+        center_y = height // 2
+        radius = width // 4
+        cv2.circle(frame, (center_x, center_y), radius, (255, 0, 0), 2)
+
     def capture_frames(self):
         while True:
             self._set_dir()
             current_time = time.time()
             ret, frame = self.cap.read()
+            frame = cv2.flip(frame, 1)  # 좌우반전
             if not ret:
                 continue
             frame_copy = frame.copy()
             height, width, _ = frame.shape
             self._add_grid(frame, height, width)
             self._add_number_in_grid(frame, height, width)
+            self._add_circle(frame, height, width)
         
             # 화면에 프레임을 표시합니다.
             cv2.imshow('Grid Webcam', frame)
