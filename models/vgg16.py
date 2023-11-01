@@ -34,7 +34,7 @@ RESIZED_WIDTH = IMG_WIDTH
 RESIZED_HEIGHT = IMG_HEIGHT
 LABELS = GRID_ROWS * GRID_COLS
 BATCH_N = 32
-EPOCHS = 50
+EPOCHS = 3
 # TRAIN_STEPS = int(len(train_data)/BATCH_N)
 VAL_STEPS = 6
 DENSE_UNITS = 1024
@@ -139,16 +139,19 @@ history = model_out.fit(
                 # callbacks = [cp_callback]
                 )
 
-
 ### Ploting
 loss = history.history['val_loss']
 epochs = range(1, len(loss)+1)
 
+print(history.history)
+
 plt.figure(figsize=(10, 10))
 plt.subplot(2, 1, 1)
 plt.title('Accuray')
-plt.plot(epochs, history.history['accuracy'], 'r', label='accuracy')
-plt.plot(epochs, history.history['val_accuracy'], 'g', label='val_accuracy')
+plt.plot(epochs, history.history['row_out_accuracy'], 'g', label='row_out_accuracy')
+plt.plot(epochs, history.history['col_out_accuracy'], 'g', label='col_out_accuracy')
+plt.plot(epochs, history.history['val_row_out_accuracy'], 'g', label='val_row_out_accuracy')
+plt.plot(epochs, history.history['val_col_out_accuracy'], 'g', label='val_col_out_accuracy')
 plt.grid(True)
 plt.ylabel('Accuracy')
 plt.legend(loc='best')
@@ -156,7 +159,11 @@ plt.legend(loc='best')
 plt.subplot(2, 1, 2)
 plt.title('Loss')
 plt.plot(epochs, history.history['loss'], 'r', label='loss')
+plt.plot(epochs, history.history['row_out_loss'], 'r', label='row_out_loss')
+plt.plot(epochs, history.history['col_out_loss'], 'r', label='col_out_loss')
 plt.plot(epochs, history.history['val_loss'], 'g', label='val_loss')
+plt.plot(epochs, history.history['val_row_out_loss'], 'g', label='val_row_out_loss')
+plt.plot(epochs, history.history['val_col_out_loss'], 'g', label='val_col_out_loss')
 plt.grid(True)
 plt.xlabel('Epoch')
 plt.ylabel('Loss')
@@ -164,7 +171,7 @@ plt.legend(loc='best')
 plt.show()
 
 
-### 결과 출력을 위한 함수
+# ### 결과 출력을 위한 함수
 def Make_Result_Plot(suptitle, data, label, y_max):
     fig_result, ax_result = plt.subplots(2, 5, figsize=(18, 7))
     fig_result.suptitle(suptitle)
