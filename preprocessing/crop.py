@@ -5,11 +5,10 @@ import os
 directory_path = 'images/'  # 이미지 파일 경로를 지정합니다.
 cropped_path = 'cropped/'
 image_directory = [f for f in os.listdir(directory_path)]
-print(image_directory)
 
 for i in image_directory:
     image_files = [f for f in os.listdir(directory_path + str(i)) if f.lower().endswith(('.png', '.jpg', '.jpeg', '.bmp', '.gif'))]
-    print(image_files)
+    # print(image_files)
     for image_file in image_files:
         image = cv2.imread(directory_path + str(i) + '/' + image_file)
         if image is None:
@@ -29,7 +28,4 @@ for i in image_directory:
             output_path = cropped_path + str(i) + "/" + image_file
             
             # 자른 이미지를 저장합니다.
-            cv2.imshow('Grid Webcam', cropped_image)
             cv2.imwrite(output_path, cropped_image)
-
-            print('이미지가 성공적으로 저장되었습니다.')
