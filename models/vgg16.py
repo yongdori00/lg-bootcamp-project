@@ -17,13 +17,13 @@ from tensorflow.keras.applications import VGG16
 ### Parameters
 
 # Data Params
-IMG_WIDTH = 64
-IMG_HEIGHT = 64
+IMG_WIDTH = 212
+IMG_HEIGHT = 320
 IMG_CHANNELS = 3
-IMG_PATH = "../data/images"
-CSV_PATH = "../data/labels.csv"
-DF_XCOL = "filenames"
-DF_YCOL = ["row", "col"]
+IMG_PATH = "./cropped"
+CSV_PATH = "./output.csv"
+DF_XCOL = "name"
+DF_YCOL = ["row", "column"]
 
 # Grid Params
 GRID_ROWS = 6
@@ -124,7 +124,7 @@ print(model_out.summary())
 model_out.compile(
         optimizer=tf.keras.optimizers.Adam(learning_rate=0.001),
         loss='sparse_categorical_crossentropy',
-        # loss_weights=loss_weights,
+        loss_weights=1.0,
         metrics=['accuracy'])
 
 

@@ -184,7 +184,7 @@ class GridWebcamCapture:
 
 if __name__ == "__main__":
     grid_webcam = GridWebcamCapture(camera_num=1, width_grid=8, height_grid=6)
-    # grid_webcam.create_fullscreen_window()
+    grid_webcam.create_fullscreen_window()
     # grid_webcam.initial_screen()
     # grid_webcam.show_adjust_face_position(2)
-    grid_webcam.capture_frames(name="hyungoo", capture_idx=25)
+    grid_webcam.capture_frames(name="hyungoo", capture_idx=47)
