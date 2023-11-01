@@ -19,7 +19,7 @@ from tensorflow.keras.applications import VGG16
 # Data Params
 IMG_WIDTH = 212
 IMG_HEIGHT = 320
-IMG_CHANNELS = 3
+IMG_CHANNELS = 20
 IMG_PATH = "./cropped"
 CSV_PATH = "./output.csv"
 DF_XCOL = "name"
