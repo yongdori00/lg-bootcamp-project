@@ -38,6 +38,8 @@ EPOCHS = 3
 # TRAIN_STEPS = int(len(train_data)/BATCH_N)
 VAL_STEPS = 6
 DENSE_UNITS = 1024
+PRE_MODEL_PATH = None  # pretrained model path or None
+SAVE_MODEL_PATH = "./checkpoints"
 
 
 ### Dataframe 불러오기
@@ -81,51 +83,68 @@ print(np.array(train_data_t).shape)
 print(np.array(train_labels_t).shape)
 print(train_labels_t)
 
-### Load VGG16 Model
-model = VGG16(
-    weights="imagenet",
-    include_top=False,
-    input_tensor=Input(shape=(RESIZED_WIDTH, RESIZED_HEIGHT, IMG_CHANNELS))
-    )
-print('original VGG16')
-# print(model.summary())
+
+### Create new model
+def create_model():
+
+    ### Load VGG16 Model
+    model = VGG16(
+        weights="imagenet",
+        include_top=False,
+        input_tensor=Input(shape=(RESIZED_WIDTH, RESIZED_HEIGHT, IMG_CHANNELS))
+        )
+    print('original VGG16')
+    # print(model.summary())
 
 
-### Set trainable option
-for layer in model.layers[:-4]:
-    layer.trainable = False
-# for layer in model.layers:
-#     print(layer, layer.trainable)
+    ### Set trainable option
+    for layer in model.layers[:-4]:
+        layer.trainable = False
+    # for layer in model.layers:
+    #     print(layer, layer.trainable)
 
 
-### Layer 추가
-x = Flatten()(model.layers[-1].output)
-x = Dense(DENSE_UNITS, activation='relu')(x)
-x = BatchNormalization()(x)
+    ### Layer 추가
+    x = Flatten()(model.layers[-1].output)
+    x = Dense(DENSE_UNITS, activation='relu')(x)
+    x = BatchNormalization()(x)
 
-# 첫번째 출력: ROW
-row_out = Dense(GRID_ROWS, activation='softmax', name='row_out')(x)
+    # 첫번째 출력: ROW
+    row_out = Dense(GRID_ROWS, activation='softmax', name='row_out')(x)
 
-# 두번째 출력: COL
-col_out = Dense(GRID_COLS, activation='softmax', name='col_out')(x)
+    # 두번째 출력: COL
+    col_out = Dense(GRID_COLS, activation='softmax', name='col_out')(x)
 
-# 최종 모델
-model_out = tf.keras.models.Model(inputs=model.input, outputs=[row_out, col_out])
-print('fine tuned model')
-print(model_out.summary())
-
-
-### Loss function
-# loss_weights = {'row_out': 1.0, 'col_out': 1.0}  # 각 출력에 대한 가중치
-# loss = {'row_out': 'categorical_crossentropy', 'col_out': 'categorical_crossentropy'}  # 각 출력에 대한 손실 함수
+    # 최종 모델
+    model_out = tf.keras.models.Model(inputs=model.input, outputs=[row_out, col_out])
+    print('fine tuned model')
+    print(model_out.summary())
 
 
-### Model compile
-model_out.compile(
-        optimizer=tf.keras.optimizers.Adam(learning_rate=0.001),
-        loss='sparse_categorical_crossentropy',
-        loss_weights=1.0,
-        metrics=['accuracy'])
+    ### Loss function
+    # loss_weights = {'row_out': 1.0, 'col_out': 1.0}  # 각 출력에 대한 가중치
+    # loss = {'row_out': 'categorical_crossentropy', 'col_out': 'categorical_crossentropy'}  # 각 출력에 대한 손실 함수
+
+
+    ### Model compile
+    model_out.compile(
+            optimizer=tf.keras.optimizers.Adam(learning_rate=0.001),
+            loss='sparse_categorical_crossentropy',
+            loss_weights=1.0,
+            metrics=['accuracy'])
+    
+    return model_out
+
+
+### Load model
+model_out = create_model()
+if PRE_MODEL_PATH:
+    model_out.load_weights(PRE_MODEL_PATH)
+
+
+### checkpoint 지정
+checkpoint_path = os.path.join(SAVE_MODEL_PATH, "checkpoint-{epoch:04d}.ckpt")
+checkpoint_callback = tf.keras.callbacks.ModelCheckpoint(checkpoint_path, save_weights_only=True, verbose=1)
 
 
 ### Training
@@ -136,8 +155,9 @@ history = model_out.fit(
                 epochs=EPOCHS,
                 validation_data=test_data_gen,
                 validation_steps=VAL_STEPS,
-                # callbacks = [cp_callback]
+                callbacks = [checkpoint_callback]
                 )
+
 
 ### Ploting
 loss = history.history['val_loss']
@@ -171,7 +191,7 @@ plt.legend(loc='best')
 plt.show()
 
 
-# ### 결과 출력을 위한 함수
+### 결과 출력을 위한 함수
 def Make_Result_Plot(suptitle, data, label, y_max):
     fig_result, ax_result = plt.subplots(2, 5, figsize=(18, 7))
     fig_result.suptitle(suptitle)
