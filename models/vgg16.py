@@ -53,14 +53,6 @@ train_data_gen = image_gen.flow_from_directory(
                       subset='training'           # Training 용 데이터: 전체의 80%
                       )
 
-train_data_gen = image_gen.flow_from_directory(
-                      directory=IMG_PATH,
-                      batch_size=BATCH_N,
-                      # classes = [[i//GRID_COLS, i%GRID_COLS] for i in range(LABELS)],
-                      class_mode = 'categorical',
-                      subset='training'
-                      )
-
 test_data_gen = image_gen.flow_from_directory(
                       directory=IMG_PATH,         # 디렉터리 지정
                       batch_size=BATCH_N,         # 한번에 생성할 데이터의 크기 설정
