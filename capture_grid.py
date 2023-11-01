@@ -64,7 +64,8 @@ class GridWebcamCapture:
                 break
 
     def _set_dir(self):
-        self._output_directory = "images/" + str(self.frame_count % (self.width_grid * self.height_grid) + 1)
+        self._output_directory = "images/" + str(self.frame_count % (self.width_grid * self.height_grid))
+        print("set_dir", self._output_directory)
         os.makedirs(self._output_directory, exist_ok=True)
 
     def _add_number_in_grid(self, frame, height, width):
@@ -81,13 +82,13 @@ class GridWebcamCapture:
                 font_scale = 0.5
                 font_thickness = 1
                 font = cv2.FONT_HERSHEY_SIMPLEX
-                text = f'{i * self.width_grid + j + 1}'
+                text = f'{i * self.width_grid + j}'
                 text_size = cv2.getTextSize(text, font, font_scale, font_thickness)[0]
                 text_x = center_x - text_size[0] // 2
                 text_y = center_y + text_size[1] // 2
 
                 # 격자 중심에 번호를 추가합니다
-                if self.frame_count == self.width_grid * i + (j + 1):
+                if self.frame_count == self.width_grid * i + j:
                     cv2.putText(frame, text, (text_x, text_y), font, font_scale, (0, 0, 255), font_thickness, lineType=cv2.LINE_AA)
                 else:
                     cv2.putText(frame, text, (text_x, text_y), font, font_scale, (0, 255, 0), font_thickness, lineType=cv2.LINE_AA)
@@ -118,10 +119,9 @@ class GridWebcamCapture:
         cv2.ellipse(frame, (center_x, center_y), (major_axis, minor_axis), angle, 0, 360, (255, 0, 0), 2)
 
     def capture_frames(self, capture_delay_time: float=1):
-        is_waited = False
+        is_waited = True
         start_time = time.time()
         while True:
-            self._set_dir()
             current_time = time.time()
             ret, frame = self.cap.read()
             frame = cv2.flip(frame, 1)  # 좌우반전
@@ -137,9 +137,9 @@ class GridWebcamCapture:
             # 화면에 프레임을 표시합니다.
             cv2.imshow('Grid Webcam', frame)
 
-            # 캡처 하기
             if is_waited:
                 if current_time - start_time >= capture_delay_time:
+                    self._set_dir()
                     timestamp = time.strftime("%Y%m%d_%H%M%S")
                     output_filename = os.path.join(self._output_directory, f"frame_{timestamp}.png")
                     cv2.imwrite(output_filename, frame_copy)
@@ -155,7 +155,7 @@ class GridWebcamCapture:
                     )
                     start_time = current_time
                     is_waited = False
-                    print("capture")
+                    print("capture {}".format(self.frame_count))
             else:
                 if current_time - start_time >= capture_delay_time:
                     start_time = current_time
@@ -177,5 +177,5 @@ if __name__ == "__main__":
     grid_webcam = GridWebcamCapture(camera_num=1, width_grid=8, height_grid=6)
     # grid_webcam.create_fullscreen_window()
     grid_webcam.initial_screen()
-    grid_webcam.show_adjust_face_position(5)
-    grid_webcam.capture_frames(capture_delay_time=2)
+    grid_webcam.show_adjust_face_position(3)
+    grid_webcam.capture_frames(capture_delay_time=0.5)
