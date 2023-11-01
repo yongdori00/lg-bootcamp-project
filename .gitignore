@@ -1,2 +1,5 @@
 images/
 cropped/
+*.png
+*.jpg
+*.zip
