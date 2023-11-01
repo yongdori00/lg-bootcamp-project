@@ -75,25 +75,23 @@ model = VGG16(
 ### Set trainable option
 for layer in model.layers[:-4]:
     layer.trainable = False
-for layer in model.layers:
-    print(layer, layer.trainable)
+# for layer in model.layers:
+#     print(layer, layer.trainable)
 
 
 ### Layer 추가
-model_fine = tf.keras.models.Sequential()
-model_fine.add(model)
-model_fine.add(Flatten())
-model_fine.add(Dense(DENSE_UNITS, activation='relu'))
-model_fine.add(BatchNormalization())
+x = Flatten()(model.layers[-1].output)
+x = Dense(DENSE_UNITS, activation='relu')(x)
+x = BatchNormalization()(x)
 
 # 첫번째 출력: COL
-col_out = Dense(GRID_COLS, activation='softmax', name='col_out')(model_fine)
+col_out = Dense(GRID_COLS, activation='softmax', name='col_out')(x)
 
 # 두번째 출력: ROW
-row_out = Dense(GRID_ROWS, activation='softmax', name='row_out')(model_fine)
+row_out = Dense(GRID_ROWS, activation='softmax', name='row_out')(x)
 
 # 최종 모델
-model_out = tf.keras.models.Model(inputs=model.inputs, outputs=[col_out, row_out])
+model_out = tf.keras.models.Model(inputs=model.input, outputs=[col_out, row_out])
 
 # model_fine.summary()
 
