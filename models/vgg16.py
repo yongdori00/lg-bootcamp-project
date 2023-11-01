@@ -47,18 +47,18 @@ image_gen = tf.keras.preprocessing.image.ImageDataGenerator(
 train_data_gen = image_gen.flow_from_directory(
                       directory=IMG_PATH,         # 디렉터리 지정
                       batch_size=BATCH_N,         # 한번에 생성할 데이터의 크기 설정
-                      # target_size=(RESIZED_WIDTH, RESIZED_HEIGHT),  # 변경될 이미지 데이터의 크기
-                      classes = [i for i in range(LABELS)],           # 클래스 번호 부여: 디렉터리 순
-                      class_mode = 'sparse',      # Label을 숫자로 표기
+                      target_size=(RESIZED_WIDTH, RESIZED_HEIGHT),                     # 변경될 이미지 데이터의 크기
+                      # classes = [[i//GRID_COLS, i%GRID_COLS] for i in range(LABELS)],  # 클래스 번호 부여: 디렉터리 순
+                      class_mode = 'categorical', # Label을 숫자로 표기
                       subset='training'           # Training 용 데이터: 전체의 80%
                       )
 
 test_data_gen = image_gen.flow_from_directory(
                       directory=IMG_PATH,         # 디렉터리 지정
                       batch_size=BATCH_N,         # 한번에 생성할 데이터의 크기 설정
-                      # target_size=(RESIZED_WIDTH, RESIZED_HEIGHT),  # 변경될 이미지 데이터의 크기
-                      classes = [i for i in range(LABELS)],           # 클래스 번호 부여: 디렉터리 순
-                      class_mode = 'sparse',      # Label을 숫자로 표기
+                      target_size=(RESIZED_WIDTH, RESIZED_HEIGHT),                     # 변경될 이미지 데이터의 크기
+                      # classes = [[i//GRID_COLS, i%GRID_COLS] for i in range(LABELS)],  # 클래스 번호 부여: 디렉터리 순
+                      class_mode = 'categorical', # Label을 숫자로 표기
                       subset='validation'         # Testing 용 데이터: 전체의 20%
                       )
 
@@ -67,7 +67,7 @@ test_data_gen = image_gen.flow_from_directory(
 model = VGG16(
     weights="imagenet",
     include_top=False,
-    input_tensor=Input(shape=(IMG_WIDTH, IMG_HEIGHT, IMG_CHANNELS))
+    input_tensor=Input(shape=(RESIZED_WIDTH, RESIZED_HEIGHT, IMG_CHANNELS))
     )
 # model.summary()
 
@@ -79,31 +79,47 @@ for layer in model.layers:
     print(layer, layer.trainable)
 
 
-### Layer를 추가하여 모델 완성
+### Layer 추가
 model_fine = tf.keras.models.Sequential()
 model_fine.add(model)
 model_fine.add(Flatten())
 model_fine.add(Dense(DENSE_UNITS, activation='relu'))
 model_fine.add(BatchNormalization())
-model_fine.add(Dense(LABELS, activation='softmax'))
+
+# 첫번째 출력: COL
+col_out = Dense(GRID_COLS, activation='softmax', name='col_out')(model_fine)
+
+# 두번째 출력: ROW
+row_out = Dense(GRID_ROWS, activation='softmax', name='row_out')(model_fine)
+
+# 최종 모델
+model_out = tf.keras.models.Model(inputs=model.inputs, outputs=[col_out, row_out])
+
 # model_fine.summary()
 
 
-### Compile Model
-model_fine.compile(optimizer='adam',
-              loss='sparse_categorical_crossentropy',
-              metrics=['accuracy'])
+### Loss function
+loss_weights = {'col_out': 1.0, 'row_out': 1.0}  # 각 출력에 대한 가중치
+loss = {'col_out': 'categorical_crossentropy', 'row_out': 'categorical_crossentropy'}  # 각 출력에 대한 손실 함수
+
+
+### Model compile
+model_out.compile(
+        optimizer=tf.keras.optimizers.Adam(learning_rate=0.001),
+        loss=loss,
+        loss_weights=loss_weights,
+        metrics=['accuracy'])
 
 
 ### Training
 # %%time
-history = model_fine.fit(
+history = model_out.fit(
                 train_data_gen,
                 # steps_per_epoch=TRAIN_STEPS,
                 epochs=EPOCHS,
                 validation_data=test_data_gen,
                 validation_steps=VAL_STEPS,
-                callbacks = [cp_callback]
+                # callbacks = [cp_callback]
                 )
 
 
@@ -140,6 +156,6 @@ def Make_Result_Plot(suptitle, data, label, y_max):
         ax_result[idx//5][idx%5].set_title("test_data[{}] (label : {} / y : {})".format(idx, label[idx], y_max[idx]))
 
 ### 학습 후 상황
-y_out = model_fine.predict(test_data)
+y_out = model_out.predict(test_data)
 y_max = np.argmax(y_out, axis=1).reshape((-1, 1))
 Make_Result_Plot("After Training", test_data, test_labels, y_max)
