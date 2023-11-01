@@ -123,7 +123,7 @@ print(model_out.summary())
 ### Model compile
 model_out.compile(
         optimizer=tf.keras.optimizers.Adam(learning_rate=0.001),
-        loss='categorical_crossentropy',
+        loss='sparse_categorical_crossentropy',
         # loss_weights=loss_weights,
         metrics=['accuracy'])
 
