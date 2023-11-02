@@ -1,11 +1,23 @@
+import sys, os
+sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
+
 import cv2
+import numpy as np
 import random
+from models.params import Params
+from models.create_model import Create_model
+
 
 class Controller:
     def __init__(self, camera_num: int = 0, width_grid: int = 0, height_grid: int = 0):
         self.cap = cv2.VideoCapture(camera_num)
         self.width_grid, self.height_grid = width_grid, height_grid
+        self.params = Params()
         self._output_directory = ""
+        self.model_path = ""
+        self.model_creator = Create_model()
+        self.model_out = self.model_creator.create_model()
+        self.model_out.load_weights(self.model_path)
         
     def create_fullscreen_window(self):
         cv2.namedWindow('Grid Webcam', cv2.WINDOW_NORMAL)
@@ -76,8 +88,8 @@ class Controller:
         random_num = random.randint(0, num)
         return random_num
 
-    def control_screen(self):
-        highlighted_grid = 0
+    def control_screen(self, init_label):
+        highlighted_grid = init_label
         print("highlighted_grid:", highlighted_grid)
         cnt = 0
         while True:
@@ -85,24 +97,29 @@ class Controller:
             frame = cv2.flip(frame, 1)
             if not ret:
                 continue
+            frame_copy = frame.copy()
+            input_image = np.array((cv2.resize(cv2.cvtColor(cv2.imread(frame_copy, cv2.IMREAD_COLOR), cv2.COLOR_BGR2RGB), (self.params.RESIZED_WIDTH,self.params.RESIZED_HEIGHT))))
+            y_out = self.model_out.predict(input_image)
+            y_max = np.argmax(y_out, axis=1)
+
             self._add_grid(frame, frame.shape[0], frame.shape[1])
             # self._add_number_in_grid(frame, frame.shape[0], frame.shape[1])
             self._add_ellipse(frame, frame.shape[0], frame.shape[1])
 
             # 그리드 하이라이트
-            row = highlighted_grid // self.width_grid
-            col = highlighted_grid % self.width_grid
+            row = y_max[0]
+            col = y_max[1]
             self.highlight_grid(frame, row, col)  # 함수 호출로 그리드 하이라이트
 
             cv2.imshow('Grid Webcam', frame)
-            cnt += 1
-            if cnt > 30:
-                cnt = 0
-                # highlighted_grid += 1
-                highlighted_grid = self._random_integer_between_0_and_num()
-                print("highlighted_grid:", highlighted_grid)
-                if highlighted_grid >= self.height_grid*self.width_grid:
-                    break
+            # cnt += 1
+            # if cnt > 30:
+            #     cnt = 0
+            #     # highlighted_grid += 1
+            #     highlighted_grid = self._random_integer_between_0_and_num()
+            #     print("highlighted_grid:", highlighted_grid)
+            #     if highlighted_grid >= self.height_grid*self.width_grid:
+            #         break
             
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 break
@@ -113,4 +130,4 @@ class Controller:
 if __name__ == "__main__":
     grid_webcam = Controller(camera_num=1, width_grid=8, height_grid=6)
     grid_webcam.create_fullscreen_window()
-    grid_webcam.control_screen()
+    grid_webcam.control_screen(0)
