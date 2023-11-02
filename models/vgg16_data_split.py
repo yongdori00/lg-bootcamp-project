@@ -20,8 +20,10 @@ from tensorflow.keras.applications import VGG16
 IMG_WIDTH = 212
 IMG_HEIGHT = 320
 IMG_CHANNELS = 3
-IMG_PATH = "./cropped"
-CSV_PATH = "./output.csv"
+TRAIN_IMG_PATH = "./data/cropped_train"
+TEST_IMG_PATH = ".data/cropped_test"
+TRAIN_CSV_PATH = "./output_train.csv"
+TEST_CSV_PATH = "./output_test.csv"
 DF_XCOL = "name"
 DF_YCOL = ["row", "column"]
 
@@ -43,19 +45,25 @@ SAVE_MODEL_PATH = "./checkpoints"
 
 
 ### Dataframe 불러오기
-df = pd.read_csv(CSV_PATH)
+train_df = pd.read_csv(TRAIN_CSV_PATH)
+test_df = pd.read_csv(TEST_CSV_PATH)
 
 
 ### Data Generation
-image_gen = tf.keras.preprocessing.image.ImageDataGenerator(
-        validation_split=0.2, # validation용으로 사용할 데이터의 비율
+train_image_gen = tf.keras.preprocessing.image.ImageDataGenerator(
+        # validation_split=0.2, # validation용으로 사용할 데이터의 비율
+        rescale=1./255,       # 0 ~ 255 를 0 ~ 1 로 변경
+        brightness_range=(0.2, 1.0)   # Range for picking a brightness shift value from. 0 == black, 1 == normal
+        )
+test_image_gen = tf.keras.preprocessing.image.ImageDataGenerator(
+        validation_split=0.9, # validation용으로 사용할 데이터의 비율
         rescale=1./255,       # 0 ~ 255 를 0 ~ 1 로 변경
         brightness_range=(0.2, 1.0)   # Range for picking a brightness shift value from. 0 == black, 1 == normal
         )
 
-train_data_gen = image_gen.flow_from_dataframe(
-                      dataframe=df,         # 디렉터리 지정
-                      directory=IMG_PATH,
+train_data_gen = train_image_gen.flow_from_dataframe(
+                      dataframe=train_df,         # 디렉터리 지정
+                      directory=TRAIN_IMG_PATH,
                       x_col=DF_XCOL,
                       y_col=DF_YCOL,
                       batch_size=BATCH_N,         # 한번에 생성할 데이터의 크기 설정
@@ -65,9 +73,9 @@ train_data_gen = image_gen.flow_from_dataframe(
                       subset='training'           # Training 용 데이터: 전체의 80%
                       )
 
-test_data_gen = image_gen.flow_from_dataframe(
-                      dataframe=df,         # 디렉터리 지정
-                      directory=IMG_PATH,
+test_data_gen = test_image_gen.flow_from_dataframe(
+                      dataframe=test_df,         # 디렉터리 지정
+                      directory=TEST_IMG_PATH,
                       x_col=DF_XCOL,
                       y_col=DF_YCOL,
                       batch_size=BATCH_N,         # 한번에 생성할 데이터의 크기 설정
@@ -159,11 +167,11 @@ history = model_out.fit(
                 )
 
 
+print(history.history)
 ### Ploting
 loss = history.history['val_loss']
 epochs = range(1, len(loss)+1)
 
-print(history.history)
 
 plt.figure(figsize=(10, 10))
 plt.subplot(2, 1, 1)
@@ -188,8 +196,8 @@ plt.grid(True)
 plt.xlabel('Epoch')
 plt.ylabel('Loss')
 plt.legend(loc='best')
-plt.show()
-
+# plt.show()
+plt.savefig('savefig_default.png')
 
 ### 결과 출력을 위한 함수
 def Make_Result_Plot(suptitle, data, label, y_max):
