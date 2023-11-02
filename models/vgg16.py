@@ -39,7 +39,7 @@ train_data_gen = image_gen.flow_from_dataframe(
                       x_col=DF_XCOL,
                       y_col=DF_YCOL,
                       batch_size=BATCH_N,         # 한번에 생성할 데이터의 크기 설정
-                      target_size=(RESIZED_WIDTH, RESIZED_HEIGHT),                     # 변경될 이미지 데이터의 크기
+                      target_size=(RESIZED_HEIGHT, RESIZED_WIDTH),                     # 변경될 이미지 데이터의 크기
                       class_mode = 'multi_output', # Label을 숫자로 표기
                       subset='training'           # Training 용 데이터: 전체의 80%
                       )
@@ -50,7 +50,7 @@ test_data_gen = image_gen.flow_from_dataframe(
                       x_col=DF_XCOL,
                       y_col=DF_YCOL,
                       batch_size=BATCH_N,         # 한번에 생성할 데이터의 크기 설정
-                      target_size=(RESIZED_WIDTH, RESIZED_HEIGHT),                     # 변경될 이미지 데이터의 크기
+                      target_size=(RESIZED_HEIGHT, RESIZED_WIDTH),                     # 변경될 이미지 데이터의 크기
                       class_mode = 'multi_output', # Label을 숫자로 표기
                       subset='validation'         # Testing 용 데이터: 전체의 20%
                       )

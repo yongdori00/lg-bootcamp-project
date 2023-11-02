@@ -13,11 +13,10 @@ class Controller:
         self.cap = cv2.VideoCapture(camera_num)
         self.width_grid, self.height_grid = width_grid, height_grid
         self.params = Params()
-        self._output_directory = ""
-        self.model_path = ""
+        self.model_path = "./data/checkpoint-0030.ckpt.index"
         self.model_creator = Create_model()
         self.model_out = self.model_creator.create_model()
-        self.model_out.load_weights(self.model_path)
+        # self.model_out.load_weights(self.model_path)
         
     def create_fullscreen_window(self):
         cv2.namedWindow('Grid Webcam', cv2.WINDOW_NORMAL)
@@ -90,25 +89,34 @@ class Controller:
 
     def control_screen(self, init_label):
         highlighted_grid = init_label
-        print("highlighted_grid:", highlighted_grid)
+        # print("highlighted_grid:", highlighted_grid)
         cnt = 0
         while True:
+        # for _ in range(3):
             ret, frame = self.cap.read()
             frame = cv2.flip(frame, 1)
             if not ret:
                 continue
             frame_copy = frame.copy()
-            input_image = np.array((cv2.resize(cv2.cvtColor(cv2.imread(frame_copy, cv2.IMREAD_COLOR), cv2.COLOR_BGR2RGB), (self.params.RESIZED_WIDTH,self.params.RESIZED_HEIGHT))))
+            height, width, _ = frame_copy.shape
+            center_x = width // 2
+            center_y = height // 2
+            major_axis = width // 6       # Adjust the major axis length
+            minor_axis = height // 3  # Adjust the minor axis length
+            angle = 0  # Adjust the angle if needed
+            input_image = frame_copy[center_y - minor_axis: center_y + minor_axis, center_x - major_axis:center_x + major_axis]
+            input_image = np.expand_dims(input_image, axis=0)
             y_out = self.model_out.predict(input_image)
-            y_max = np.argmax(y_out, axis=1)
-
+            row = y_out[0]
+            col = y_out[1]
+            
             self._add_grid(frame, frame.shape[0], frame.shape[1])
             # self._add_number_in_grid(frame, frame.shape[0], frame.shape[1])
             self._add_ellipse(frame, frame.shape[0], frame.shape[1])
 
             # 그리드 하이라이트
-            row = y_max[0]
-            col = y_max[1]
+            row = np.argmax(row)
+            col = np.argmax(col)
             self.highlight_grid(frame, row, col)  # 함수 호출로 그리드 하이라이트
 
             cv2.imshow('Grid Webcam', frame)

@@ -21,9 +21,9 @@ class Create_model:
         model = VGG16(
             weights="imagenet",
             include_top=False,
-            input_tensor=Input(shape=(self.params.RESIZED_WIDTH, self.params.RESIZED_HEIGHT, self.params.IMG_CHANNELS))
+            input_tensor=Input(shape=(self.params.RESIZED_HEIGHT, self.params.RESIZED_WIDTH, self.params.IMG_CHANNELS))
             )
-        print('original VGG16')
+        # print('original VGG16')
         # print(model.summary())
 
 
@@ -47,8 +47,8 @@ class Create_model:
 
         # 최종 모델
         model_out = tf.keras.models.Model(inputs=model.input, outputs=[row_out, col_out])
-        print('fine tuned model')
-        print(model_out.summary())
+        # print('fine tuned model')
+        # print(model_out.summary())
 
 
         ### Loss function

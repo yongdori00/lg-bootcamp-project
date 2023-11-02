@@ -7,7 +7,7 @@ class Params:
         self.RESIZED_WIDTH = self.IMG_WIDTH
         self.IMG_HEIGHT = 320
         self.RESIZED_HEIGHT = self.IMG_HEIGHT
-        self.IMG_CHANNELS = 20
+        self.IMG_CHANNELS = 3
         self.IMG_PATH = "./cropped"
         self.CSV_PATH = "./output.csv"
         self.TEST_IMG_PATH = ""
