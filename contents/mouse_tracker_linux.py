@@ -20,13 +20,13 @@ class MouseTracker:
         # 이동 후의 마우스 좌표 출력
         # print("마우스 현재 위치:", current_x, current_y)
 
-    def click_mouse():
-        # 마우스 왼쪽 버튼 클릭
-        root.button_press(1)
-        disp.sync()
+    # def click_mouse():
+    #     # 마우스 왼쪽 버튼 클릭
+    #     root.button_press(1)
+    #     disp.sync()
 
-        # 마우스 왼쪽 버튼 떼기
-        root.button_release(1)
-        disp.sync()
+    #     # 마우스 왼쪽 버튼 떼기
+    #     root.button_release(1)
+    #     disp.sync()
 
-    def 
+    # def 

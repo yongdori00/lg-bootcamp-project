@@ -3,43 +3,23 @@ import tensorflow as tf
 import matplotlib.pyplot as plt
 import os
 import pandas as pd
-
-from tensorflow.keras.layers import Input
-from tensorflow.keras.layers import Conv2D
-from tensorflow.keras.layers import MaxPool2D
-from tensorflow.keras.layers import Flatten
-from tensorflow.keras.layers import Dense
-from tensorflow.keras.layers import Dropout
-from tensorflow.keras.layers import BatchNormalization
-from tensorflow.keras.applications import VGG16
+from create_model import Create_model
+from params import Params
 
 
 ### Parameters
-
-# Data Params
-IMG_WIDTH = 212
-IMG_HEIGHT = 320
-IMG_CHANNELS = 3
-IMG_PATH = "./cropped"
-CSV_PATH = "./output.csv"
-DF_XCOL = "name"
-DF_YCOL = ["row", "column"]
-
-# Grid Params
-GRID_ROWS = 6
-GRID_COLS = 8
-
-# Model Params
-RESIZED_WIDTH = IMG_WIDTH
-RESIZED_HEIGHT = IMG_HEIGHT
-LABELS = GRID_ROWS * GRID_COLS
-BATCH_N = 32
-EPOCHS = 3
-# TRAIN_STEPS = int(len(train_data)/BATCH_N)
-VAL_STEPS = 6
-DENSE_UNITS = 1024
-PRE_MODEL_PATH = None  # pretrained model path or None
-SAVE_MODEL_PATH = "./checkpoints"
+params = Params()
+IMG_PATH = params.IMG_PATH
+CSV_PATH = params.CSV_PATH
+DF_XCOL = params.DF_XCOL
+DF_YCOL = params.DF_YCOL
+RESIZED_WIDTH = params.RESIZED_WIDTH
+RESIZED_HEIGHT = params.RESIZED_HEIGHT
+BATCH_N = params.BATCH_N
+EPOCHS = params.EPOCHS
+VAL_STEPS = params.VAL_STEPS
+PRE_MODEL_PATH = params.PRE_MODEL_PATH
+SAVE_MODEL_PATH = params.SAVE_MODEL_PATH
 
 
 ### Dataframe 불러오기
@@ -59,8 +39,7 @@ train_data_gen = image_gen.flow_from_dataframe(
                       x_col=DF_XCOL,
                       y_col=DF_YCOL,
                       batch_size=BATCH_N,         # 한번에 생성할 데이터의 크기 설정
-                      target_size=(RESIZED_WIDTH, RESIZED_HEIGHT),                     # 변경될 이미지 데이터의 크기
-                      # classes = [(i//GRID_COLS, i%GRID_COLS) for i in range(LABELS)],  # 클래스 번호 부여: 디렉터리 순
+                      target_size=(RESIZED_HEIGHT, RESIZED_WIDTH),                     # 변경될 이미지 데이터의 크기
                       class_mode = 'multi_output', # Label을 숫자로 표기
                       subset='training'           # Training 용 데이터: 전체의 80%
                       )
@@ -71,8 +50,7 @@ test_data_gen = image_gen.flow_from_dataframe(
                       x_col=DF_XCOL,
                       y_col=DF_YCOL,
                       batch_size=BATCH_N,         # 한번에 생성할 데이터의 크기 설정
-                      target_size=(RESIZED_WIDTH, RESIZED_HEIGHT),                     # 변경될 이미지 데이터의 크기
-                      # classes = [(i//GRID_COLS, i%GRID_COLS) for i in range(LABELS)],  # 클래스 번호 부여: 디렉터리 순
+                      target_size=(RESIZED_HEIGHT, RESIZED_WIDTH),                     # 변경될 이미지 데이터의 크기
                       class_mode = 'multi_output', # Label을 숫자로 표기
                       subset='validation'         # Testing 용 데이터: 전체의 20%
                       )
@@ -84,60 +62,9 @@ print(np.array(train_labels_t).shape)
 print(train_labels_t)
 
 
-### Create new model
-def create_model():
-
-    ### Load VGG16 Model
-    model = VGG16(
-        weights="imagenet",
-        include_top=False,
-        input_tensor=Input(shape=(RESIZED_WIDTH, RESIZED_HEIGHT, IMG_CHANNELS))
-        )
-    print('original VGG16')
-    # print(model.summary())
-
-
-    ### Set trainable option
-    for layer in model.layers[:-4]:
-        layer.trainable = False
-    # for layer in model.layers:
-    #     print(layer, layer.trainable)
-
-
-    ### Layer 추가
-    x = Flatten()(model.layers[-1].output)
-    x = Dense(DENSE_UNITS, activation='relu')(x)
-    x = BatchNormalization()(x)
-
-    # 첫번째 출력: ROW
-    row_out = Dense(GRID_ROWS, activation='softmax', name='row_out')(x)
-
-    # 두번째 출력: COL
-    col_out = Dense(GRID_COLS, activation='softmax', name='col_out')(x)
-
-    # 최종 모델
-    model_out = tf.keras.models.Model(inputs=model.input, outputs=[row_out, col_out])
-    print('fine tuned model')
-    print(model_out.summary())
-
-
-    ### Loss function
-    # loss_weights = {'row_out': 1.0, 'col_out': 1.0}  # 각 출력에 대한 가중치
-    # loss = {'row_out': 'categorical_crossentropy', 'col_out': 'categorical_crossentropy'}  # 각 출력에 대한 손실 함수
-
-
-    ### Model compile
-    model_out.compile(
-            optimizer=tf.keras.optimizers.Adam(learning_rate=0.001),
-            loss='sparse_categorical_crossentropy',
-            loss_weights=1.0,
-            metrics=['accuracy'])
-
-    return model_out
-
-
 ### Load model
-model_out = create_model()
+model_creator = Create_model()
+model_out = model_creator.create_model()
 if PRE_MODEL_PATH:
     model_out.load_weights(PRE_MODEL_PATH)
 
@@ -192,14 +119,14 @@ plt.show()
 
 
 ### 결과 출력을 위한 함수
-def Make_Result_Plot(suptitle, data, label, y_max):
-    fig_result, ax_result = plt.subplots(2, 5, figsize=(18, 7))
-    fig_result.suptitle(suptitle)
-    for idx in range(10):
-        ax_result[idx//5][idx%5].imshow(data[idx],cmap="binary")
-        ax_result[idx//5][idx%5].set_title("test_data[{}] (label : {} / y : {})".format(idx, label[idx], y_max[idx]))
+# def Make_Result_Plot(suptitle, data, label, y_max):
+#     fig_result, ax_result = plt.subplots(2, 5, figsize=(18, 7))
+#     fig_result.suptitle(suptitle)
+#     for idx in range(10):
+#         ax_result[idx//5][idx%5].imshow(data[idx],cmap="binary")
+#         ax_result[idx//5][idx%5].set_title("test_data[{}] (label : {} / y : {})".format(idx, label[idx], y_max[idx]))
 
-### 학습 후 상황
-y_out = model_out.predict(test_data)
-y_max = np.argmax(y_out, axis=1).reshape((-1, 1))
-Make_Result_Plot("After Training", test_data, test_labels, y_max)
+# ### 학습 후 상황
+# y_out = model_out.predict(test_data)
+# y_max = np.argmax(y_out, axis=1).reshape((-1, 1))
+# Make_Result_Plot("After Training", test_data, test_labels, y_max)
