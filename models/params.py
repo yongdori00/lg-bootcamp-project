@@ -26,5 +26,5 @@ class Params:
         # self.TRAIN_STEPS = int(len(train_data)/self.BATCH_N)
         self.VAL_STEPS = 6
         self.DENSE_UNITS = 1024
-        self.PRE_MODEL_PATH = None  # pretrained model path or None
+        self.PRE_MODEL_PATH = None  # pretrained model path(.ckpt) or None
         self.SAVE_MODEL_PATH = "./checkpoints"
