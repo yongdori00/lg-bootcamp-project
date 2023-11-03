@@ -18,4 +18,15 @@ class MouseTracker:
 
     # def click_mouse():
 
-    # def 
+    def scroll(self, row, col):
+        if (2 <= row and row < 4) and (col == 0):
+            pyautogui.hscroll(-10)
+            
+        if (2 <= row and row < 4) and (col == 7):
+            pyautogui.hscroll(10)
+            
+        if (3 <= col and col < 5) and (row == 0):
+            pyautogui.scroll(-10)
+            
+        if (3 <= row and row < 5) and (row == 5):
+            pyautogui.scroll(10)

@@ -14,6 +14,8 @@ for height_directory_path in image_directory:
         # print(image_files)
         for i in width_directory:
             image = cv2.imread(directory_path + '/' + str(height_directory_path) + '/' + str(width_directory_path) + '/' + i)
+            # image = cv2.medianBlur(image, 5)
+            # image = cv2.GaussianBlur(image, (5, 5), 0)
             if image is None:
                 print('이미지를 불러올 수 없습니다.')
             else:

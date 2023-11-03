@@ -174,6 +174,10 @@ class GridWebcamCapture:
 
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 break
+            
+            if cv2.waitKey(1) & 0xFF == ord('u'):
+                self.num_zone += 1
+                self._set_dir()
 
             if self.num_zone == (self.width_grid * self.height_grid):
                 break
@@ -187,4 +191,4 @@ if __name__ == "__main__":
     grid_webcam.create_fullscreen_window()
     # grid_webcam.initial_screen()
     # grid_webcam.show_adjust_face_position(2)
-    grid_webcam.capture_frames(name="hyungoo", capture_idx=16)
+    grid_webcam.capture_frames(name="hyungoo", capture_idx=2)

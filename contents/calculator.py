@@ -14,8 +14,8 @@ class Cal:
 
         return x1, x2, y1, y2
     
-    def inference(self, frame, model_out):
-        #crop 및 추론
+    def output(self, frame, model_out):
+        #crop 및 결과
         frame_copy = frame.copy()
         height, width, _ = frame_copy.shape
         center_x = width // 2
@@ -34,3 +34,4 @@ class Cal:
         col = np.argmax(col)
 
         return row, col
+    

@@ -32,7 +32,7 @@ class Controller:
             frame = cv2.flip(frame, 1)
 
             # 추론 및 row, col return
-            row, col = self.cal.inference(frame, model_out=self.model_out)
+            row, col = self.cal.output(frame, model_out=self.model_out)
 
             # 화면 출력 및 마우스 출력
             video.show_frame(frame, row, col, ret)
