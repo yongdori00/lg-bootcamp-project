@@ -191,4 +191,4 @@ if __name__ == "__main__":
     grid_webcam.create_fullscreen_window()
     # grid_webcam.initial_screen()
     # grid_webcam.show_adjust_face_position(2)
-    grid_webcam.capture_frames(name="hyungoo", capture_idx=2)
+    grid_webcam.capture_frames(name="hyungoo", capture_idx=33)

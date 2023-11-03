@@ -12,6 +12,7 @@ class ShowVideo:
         if not ret:
             return
         
+        
         self._add_grid(frame, frame.shape[0], frame.shape[1])
         # self._add_number_in_grid(frame, frame.shape[0], frame.shape[1])
         self._add_ellipse(frame, frame.shape[0], frame.shape[1])
