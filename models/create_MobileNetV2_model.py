@@ -8,7 +8,7 @@ from tensorflow.keras.layers import Flatten
 from tensorflow.keras.layers import Dense
 from tensorflow.keras.layers import Dropout
 from tensorflow.keras.layers import BatchNormalization
-from tensorflow.keras.applications import VGG16
+from tensorflow.keras.applications import MobileNetV2
 
 
 ### Create new model
@@ -17,19 +17,19 @@ class Create_model:
         self.params = Params()
     
     def create_model(self):
-        ### Load VGG16 Model
-        model = VGG16(
+        ### Load MobileNetV2 Model
+        model = MobileNetV2(
             weights="imagenet",
             include_top=False,
             input_tensor=Input(shape=(self.params.RESIZED_HEIGHT, self.params.RESIZED_WIDTH, self.params.IMG_CHANNELS))
             )
-        # print('original VGG16')
+        # print('original MobileNetV2')
         # print(model.summary())
 
 
         ### Set trainable option
-        for layer in model.layers[:-4]:
-            layer.trainable = False
+        # for layer in model.layers[:-4]:
+            # layer.trainable = False
         # for layer in model.layers:
         #     print(layer, layer.trainable)
 

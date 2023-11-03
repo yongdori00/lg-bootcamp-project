@@ -2,7 +2,7 @@ import sys, os
 sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
 
 import tensorflow as tf
-from models.create_model import Create_model
+from models.create_MobileNetV2_model import Create_model
 
 
 ### 변환할 모델
