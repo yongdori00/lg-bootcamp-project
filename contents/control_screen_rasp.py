@@ -13,7 +13,7 @@ class Controller:
         self.cap = cv2.VideoCapture(camera_num)
         self.width_grid, self.height_grid = width_grid, height_grid
         self.params = Params()
-        self.model_path = "./tfliteConvert/test_tfliteModel.tflite"
+        self.model_path = "./tfliteConvert/MobileNetV2_tfliteModel.tflite"
         self.interpreter=tflite.Interpreter(model_path=self.model_path)
         self.interpreter.allocate_tensors()
         self.input_details = self.interpreter.get_input_details()
