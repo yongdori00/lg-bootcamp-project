@@ -1,17 +1,17 @@
 import random
 import cv2
-from calculator import Param
+from calculator import Cal
+import numpy as np
 
 class ShowVideo:
-    def __init__(self, camera_num: int = 0, cal: Param = None):
-        self.cap = cv2.VideoCapture(camera_num)
+    def __init__(self, cal: Cal = None, model_out=None):
         self.cal = cal
+        self.model_out = model_out
         
-    def show_frame(self, row, col):
-        ret, frame = self.cap.read()
-        frame = cv2.flip(frame, 1)
+    def show_frame(self, frame, row, col, ret):
         if not ret:
             return
+        
         self._add_grid(frame, frame.shape[0], frame.shape[1])
         # self._add_number_in_grid(frame, frame.shape[0], frame.shape[1])
         self._add_ellipse(frame, frame.shape[0], frame.shape[1])

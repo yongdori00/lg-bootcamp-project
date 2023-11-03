@@ -1,15 +1,15 @@
-from calculator import Param
+from calculator import Cal
 import pyautogui
 import cv2
 
 class MouseTracker:
-    def __init__(self, cal: Param):
+    def __init__(self, cal: Cal):
         self.cal = cal
 
     def move_cursor(self, row, col):
         screen_width, screen_height = pyautogui.size()
         x1, x2, y1, y2 = self.cal.calculate_cell_size(screen_width, screen_height, row, col)
-
+        
         # 마우스 커서 이동
         pyautogui.moveTo((x2 + x1) / 2, (y2 + y1) / 2, duration=0.05)
 
