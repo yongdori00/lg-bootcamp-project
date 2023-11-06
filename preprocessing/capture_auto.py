@@ -63,8 +63,15 @@ class GridWebcamCapture:
             if time.time() - start_time >= wait_time:
                 break
 
+    # def _set_dir(self):
+    #     self._output_directory = "images/" + str(self.frame_count % (self.width_grid * self.height_grid))
+    #     print("set_dir", self._output_directory)
+    #     os.makedirs(self._output_directory, exist_ok=True)
+    
     def _set_dir(self):
-        self._output_directory = "images/" + str(self.frame_count % (self.width_grid * self.height_grid))
+        h = self.frame_count//self.width_grid
+        w = self.frame_count%self.width_grid
+        self._output_directory = "images/" + str("{}/{}".format(h, w))
         print("set_dir", self._output_directory)
         os.makedirs(self._output_directory, exist_ok=True)
 
@@ -118,7 +125,7 @@ class GridWebcamCapture:
         angle = 0                   # Adjust the angle if needed
         cv2.ellipse(frame, (center_x, center_y), (major_axis, minor_axis), angle, 0, 360, (255, 0, 0), 2)
 
-    def capture_frames(self, capture_delay_time: float=1):
+    def capture_frames(self, name: str, capture_delay_time: float=1):
         is_waited = True
         start_time = time.time()
         while True:
@@ -141,7 +148,8 @@ class GridWebcamCapture:
                 if current_time - start_time >= capture_delay_time:
                     self._set_dir()
                     timestamp = time.strftime("%Y%m%d_%H%M%S")
-                    output_filename = os.path.join(self._output_directory, f"frame_{timestamp}.png")
+                    # output_filename = os.path.join(self._output_directory, f"frame_{timestamp}.png")
+                    output_filename = os.path.join(self._output_directory, f"{name}_{timestamp}.png")
                     cv2.imwrite(output_filename, frame_copy)
                     print(f"Captured frame saved: {output_filename}")
 
@@ -178,4 +186,4 @@ if __name__ == "__main__":
     grid_webcam.create_fullscreen_window()
     grid_webcam.initial_screen()
     grid_webcam.show_adjust_face_position(5)
-    grid_webcam.capture_frames(capture_delay_time=1)
+    grid_webcam.capture_frames(name="jiye", capture_delay_time=1)
