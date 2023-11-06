@@ -21,7 +21,7 @@ class Create_model:
         model = MobileNetV2(
             weights="imagenet",
             include_top=False,
-            input_tensor=Input(shape=(self.params.RESIZED_HEIGHT, self.params.RESIZED_WIDTH, self.params.IMG_CHANNELS))
+            input_tensor=Input(shape=(self.params.RESIZED_HEIGHT, self.params.RESIZED_WIDTH*2, self.params.IMG_CHANNELS))
             )
         # print('original MobileNetV2')
         # print(model.summary())
