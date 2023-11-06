@@ -22,7 +22,7 @@ def create_csv_from_directory(directory_path, output_csv):
                         csv_writer.writerow([f"{first_subdir}/{second_subdir}/{png_file}", first_subdir, second_subdir])
 
 if __name__ == '__main__':
-    directory_path = 'cropped'  # 디렉토리 경로를 변경하세요.
+    directory_path = 'new_cropped'  # 디렉토리 경로를 변경하세요.
     output_csv = 'output.csv'  # CSV 파일 이름을 변경하세요.
 
     create_csv_from_directory(directory_path, output_csv)

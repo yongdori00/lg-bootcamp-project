@@ -3,7 +3,7 @@ import tensorflow as tf
 import matplotlib.pyplot as plt
 import os
 import pandas as pd
-from create_model import Create_model
+from create_MobileNetV2_model import Create_model
 from params import Params
 
 
@@ -96,21 +96,21 @@ plt.figure(figsize=(10, 10))
 plt.subplot(2, 1, 1)
 plt.title('Accuray')
 plt.plot(epochs, history.history['row_out_accuracy'], 'g', label='row_out_accuracy')
-plt.plot(epochs, history.history['col_out_accuracy'], 'g', label='col_out_accuracy')
-plt.plot(epochs, history.history['val_row_out_accuracy'], 'g', label='val_row_out_accuracy')
-plt.plot(epochs, history.history['val_col_out_accuracy'], 'g', label='val_col_out_accuracy')
+plt.plot(epochs, history.history['col_out_accuracy'], 'r', label='col_out_accuracy')
+plt.plot(epochs, history.history['val_row_out_accuracy'], 'b', label='val_row_out_accuracy')
+plt.plot(epochs, history.history['val_col_out_accuracy'], 'm', label='val_col_out_accuracy')
 plt.grid(True)
 plt.ylabel('Accuracy')
 plt.legend(loc='best')
 
 plt.subplot(2, 1, 2)
 plt.title('Loss')
-plt.plot(epochs, history.history['loss'], 'r', label='loss')
-plt.plot(epochs, history.history['row_out_loss'], 'r', label='row_out_loss')
+plt.plot(epochs, history.history['loss'], 'k', label='loss')
+plt.plot(epochs, history.history['row_out_loss'], 'g', label='row_out_loss')
 plt.plot(epochs, history.history['col_out_loss'], 'r', label='col_out_loss')
-plt.plot(epochs, history.history['val_loss'], 'g', label='val_loss')
-plt.plot(epochs, history.history['val_row_out_loss'], 'g', label='val_row_out_loss')
-plt.plot(epochs, history.history['val_col_out_loss'], 'g', label='val_col_out_loss')
+plt.plot(epochs, history.history['val_loss'], 'k', label='val_loss')
+plt.plot(epochs, history.history['val_row_out_loss'], 'b', label='val_row_out_loss')
+plt.plot(epochs, history.history['val_col_out_loss'], 'm', label='val_col_out_loss')
 plt.grid(True)
 plt.xlabel('Epoch')
 plt.ylabel('Loss')

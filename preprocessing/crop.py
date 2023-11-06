@@ -3,7 +3,7 @@ import os
 
 # 특정 경로에서 이미지 불러오기
 directory_path = 'images/'  # 이미지 파일 경로를 지정합니다.
-cropped_path = 'cropped_eye/'
+cropped_path = 'cropped/'
 image_directory = [f for f in os.listdir(directory_path)]
 print(image_directory)
 

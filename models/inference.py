@@ -6,7 +6,7 @@ import cv2
 from glob import glob
 
 from params import Params
-from create_model import Create_model
+from create_MobileNetV2_model import Create_model
 
 
 ### Parameters

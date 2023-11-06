@@ -109,8 +109,8 @@ class GridWebcamCapture:
     def _add_ellipse(self, frame, height, width):
         center_x = width // 2
         center_y = height // 2
-        major_axis = width // 6     # Adjust the major axis length
-        minor_axis = height // 3    # Adjust the minor axis length
+        major_axis = width // 4     # Adjust the major axis length
+        minor_axis = height // 2    # Adjust the minor axis length
         angle = 0                   # Adjust the angle if needed
         cv2.ellipse(frame, (center_x, center_y), (major_axis, minor_axis), angle, 0, 360, (255, 0, 0), 2)
 
@@ -187,8 +187,8 @@ class GridWebcamCapture:
 
 
 if __name__ == "__main__":
-    grid_webcam = GridWebcamCapture(camera_num=1, width_grid=8, height_grid=6)
+    grid_webcam = GridWebcamCapture(camera_num=1, width_grid=3, height_grid=1)
     grid_webcam.create_fullscreen_window()
     # grid_webcam.initial_screen()
     # grid_webcam.show_adjust_face_position(2)
-    grid_webcam.capture_frames(name="hyungoo", capture_idx=33)
+    grid_webcam.capture_frames(name="hyungoo", capture_idx=0)
