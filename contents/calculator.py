@@ -14,6 +14,7 @@ class Cal:
 
         return x1, x2, y1, y2
     
+
     def output(self, frame, model_out):
         #crop 및 결과
         frame_copy = frame.copy()

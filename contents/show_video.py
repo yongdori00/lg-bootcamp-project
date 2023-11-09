@@ -1,6 +1,6 @@
 import random
 import cv2
-from calculator import Cal
+from calculator_media import Cal
 import numpy as np
 
 class ShowVideo:
@@ -24,9 +24,9 @@ class ShowVideo:
     
     def create_fullscreen_window(self):
         cv2.namedWindow('Grid Webcam', cv2.WINDOW_NORMAL)
-        # cv2.setWindowProperty('Grid Webcam', cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
+        cv2.setWindowProperty('Grid Webcam', cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
         cv2.setWindowProperty('Grid Webcam', cv2.WND_PROP_TOPMOST, 1)
-
+        cv2.moveWindow("Grid Webcam", -1000, -1000)
     def _add_grid(self, frame, height, width):
         cell_size_x = width // self.cal.width_grid
         cell_size_y = height // self.cal.height_grid
@@ -49,6 +49,7 @@ class ShowVideo:
     def highlight_grid(self, frame, row, col, color=(0, 0, 255, 128)):
         height, width, _ = frame.shape
         x1, x2, y1, y2 = self.cal.calculate_cell_size(width, height, row, col)
+
 
         # 투명도를 조절하기 위해 알파 채널 추가
         alpha_channel = color[3]
